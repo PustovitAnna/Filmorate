@@ -1,8 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.*;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Getter
@@ -11,7 +14,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString(callSuper = true)
 public class Film {
-    //@NotNull изменения 3 фев
     int id;
     @NotBlank
     private String name;
