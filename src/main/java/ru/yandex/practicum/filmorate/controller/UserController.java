@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,18 +24,13 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if(user.getId() == 0) {
-            user.setId(++count);
-        }
-
-        if(users.containsKey(user.getId())) {
-            throw new ValidationException("Пользователь с id - " +
-                    user.getEmail() + " уже зарегистрирован.");
-        }
-
+        validateCreate(user);
         if (user.getName() == null) {
             validate(user);
             user.setName(user.getLogin());
+        }
+        if(user.getId() == 0) {
+            user.setId(++count);
         }
         log.info("Создание пользователя: {}", user);
         users.put(user.getId(), user);
@@ -45,20 +39,30 @@ public class UserController {
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
-        if(user.getId() == 0) {
-            user.setId(++count);
-        }
-        if (user.getId() == 9999) {
-            throw new ValidationException("Нет 9999!");
-        }
-
+        validateUpdate(user);
         if (user.getName().equals(null) || user.getName().isEmpty()) {
             validate(user);
             user.setName(user.getLogin());
         }
+        if(user.getId() == 0) {
+            user.setId(++count);
+        }
         log.info("Обновление пользователя: {}", user);
         users.put(user.getId(), user);
         return user;
+    }
+
+    void validateCreate(User user) {
+        if(users.containsKey(user.getId())) {
+            throw new ValidationException("Пользователь с id - " +
+                    user.getId() + " уже зарегистрирован.");
+        }
+    }
+
+    void validateUpdate(User user) {
+        if (!users.containsKey(user.getId())) {
+            throw new ValidationException("Такого пользователя не существует!");
+        }
     }
 
     void validate(User user) {

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -27,12 +26,9 @@ public class FilmController {
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         validate(film);
+        validateCreate(film);
         if(film.getId() == 0) {
             film.setId(++count);
-        }
-        if(films.containsKey(film.getId())) {
-            throw new ValidationException("Фильм с id - " +
-                    film.getId() + " уже зарегистрирован.");
         }
         log.info("Создание фильма: {}", film);
         films.put(film.getId(), film);
@@ -41,16 +37,26 @@ public class FilmController {
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
+        validateUpdate(film);
         validate(film);
-        if (film.getId() == 9999) {
-            throw new ValidationException("Нет 9999!");
-        }
         if(film.getId() == 0) {
             film.setId(++count);
         }
-
         films.put(film.getId(), film);
         return film;
+    }
+
+    void validateCreate(Film film) {
+        if(films.containsKey(film.getId())) {
+            throw new ValidationException("Фильм с id - " +
+                    film.getId() + " уже зарегистрирован.");
+        }
+    }
+
+    void validateUpdate(Film film) {
+        if (!films.containsKey(film.getId())) {
+            throw new ValidationException("Такого фильма не существует!");
+        }
     }
 
     void validate(Film film) {
@@ -58,5 +64,4 @@ public class FilmController {
             throw new ValidationException("Дата фильма не модет быть " + DATE);
         }
     }
-
 }
