@@ -2,13 +2,15 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
-    static FilmController filmController = new FilmController();
+    static InMemoryFilmStorage inMemoryFilmStorage= new InMemoryFilmStorage();
 
     @Test
     void validate() {
@@ -17,6 +19,6 @@ class FilmControllerTest {
         film.setDescription("Film Description");
         film.setReleaseDate(LocalDate.now());
         film.setDuration(90);
-        filmController.validate(film);
+        inMemoryFilmStorage.validate(film);
     }
 }
