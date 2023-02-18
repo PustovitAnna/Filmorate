@@ -61,5 +61,4 @@ public class FilmService {
         if(filmId <=0 || userId <= 0)
             throw new NotFoundException("Некорректный id фильма или пользователя!");
     }
-    // public static  final Comparator<Film> FILM_COMPARATOR = Comparator.comparingInt(Film::getRate);
 }

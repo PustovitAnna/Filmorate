@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
-
 @RestController
 public class UserController {
     private final UserService userService;
@@ -57,5 +56,4 @@ public class UserController {
     public List<User> getListOfMutualFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.getListOfMutualFriends(id, otherId);
     }
-
 }

@@ -11,5 +11,4 @@ public class ErrorResponse {
     public String getError() {
         return error;
     }
-
 }

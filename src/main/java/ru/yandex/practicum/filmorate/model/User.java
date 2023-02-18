@@ -14,7 +14,6 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString(callSuper = true)
 public class User {
-
     int id;
     @Email
     private String email;
