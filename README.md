@@ -1,5 +1,5 @@
 
-![Tables](http://github.com/AnnaPustowit/java-filmorate/blob/add-database/src/main/resources/db_schema.png)
+![Tables](https://github.com/AnnaPustowit/java-filmorate/blob/add-database/src/main/resources/db_schema.png)
 
 #### Таблицы:
 
