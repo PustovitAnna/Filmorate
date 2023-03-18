@@ -20,12 +20,12 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-//@AutoConfigureTestDatabase
-//@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @SpringBootTest
 class FilmorateApplicationTests {
 
-	/*private final FilmService filmService;
+	private final FilmService filmService;
 	private final UserService userService;
 	private Film film;
 	private User user;
@@ -48,12 +48,12 @@ class FilmorateApplicationTests {
 				.name("Nick Name")
 				.birthday(LocalDate.of(1985, 4, 4))
 				.build();
-	}*/
+	}
 
 	@Test
 	void contextLoads() {
 	}
-	/*@Test
+	@Test
 	void testFilmsMethods() {
 		user = userService.create(user);
 		filmService.create(film);
@@ -105,14 +105,9 @@ class FilmorateApplicationTests {
 		filmService.deleteLike(2, 1);
 		popularFilms = filmService.getPopular(2);
 		assertEquals(films.size(), popularFilms.size(), "Размеры списков не равны");
-	}
 
-	@Test
-	void testUsersMethods() {
-		user = userService.create(user);
 		List<User> usersList = (List<User>) userService.findAll();
 		assertEquals(1, usersList.size(), "Размер списка не соответствует");
-
 		User user2 = User.builder()
 				.id(user.getId())
 				.email("mailUpdate@mail.ru")
@@ -165,6 +160,5 @@ class FilmorateApplicationTests {
 
 		assertEquals(1, listUser.size(), "Размер списка друзей пользователя не соответствуют");
 		assertEquals(user3.getId(), listUser.get(0).getId(), "Список друзей пользователя после удаления не соответствуют");
-	}*/
-
+	}
 }
