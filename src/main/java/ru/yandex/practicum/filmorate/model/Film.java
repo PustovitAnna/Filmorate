@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -29,4 +30,5 @@ public class Film {
     private Set<Genre> genres;
     @JsonIgnore
     int rate;
+    private Set<Director> directors = new HashSet<>();
 }
