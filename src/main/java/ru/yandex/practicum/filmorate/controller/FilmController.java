@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 public class FilmController {
     private final FilmService filmService;
+
     @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
@@ -55,8 +57,14 @@ public class FilmController {
     }
 
     @GetMapping("/films/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue="10") int count) {
+    public List<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
         log.info("Поиск популярных фильмов");
         return filmService.getPopular(count);
+    }
+
+    @DeleteMapping("/films/{id}")
+    public void deleteFilm(@PathVariable int id) {
+        filmService.deleteFilm(id);
+        log.info("Фильм с идентификатором: " + id + " удален.");
     }
 }

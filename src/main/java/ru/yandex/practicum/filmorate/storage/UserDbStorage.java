@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -23,12 +24,13 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * FROM users";
         return jdbcTemplate.query(sql, userRowMapper);
     }
+
     @Override
     public User create(User user) {
         String sql = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement psst = connection.prepareStatement(sql,  new String[] { "user_id" });
+            PreparedStatement psst = connection.prepareStatement(sql, new String[]{"user_id"});
             psst.setString(1, user.getEmail());
             psst.setString(2, user.getLogin());
             psst.setString(3, user.getName());
@@ -43,8 +45,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User put(User user) {
         String sql = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
-        int count = jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName()
-                , user.getBirthday(), user.getId());
+        int count = jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(),
+                user.getBirthday(), user.getId());
         if (count == 0) {
             log.info("Обновление пользователя: {}", user);
             throw new NotFoundException("Пользователь еще не создан!");
@@ -56,9 +58,9 @@ public class UserDbStorage implements UserStorage {
     public User getUserById(int id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
         return jdbcTemplate.query(sql, userRowMapper, id)
-                .stream().
-                findAny().
-                orElseThrow(() -> new NotFoundException("Пользватель с id " + id + "не найден"));
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Пользватель с id " + id + "не найден"));
     }
 
     @Override
@@ -74,7 +76,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getFriends(int id){
+    public List<User> getFriends(int id) {
+        getUserById(id);
         String sql = "SELECT * FROM users WHERE user_id IN (SELECT friend_id FROM friendship WHERE user_id = ?)";
         return jdbcTemplate.query(sql, userRowMapper, id);
     }
@@ -89,6 +92,11 @@ public class UserDbStorage implements UserStorage {
                 "                  FROM friendship AS fr\n" +
                 "                  WHERE fr.user_id = ?)";
         return jdbcTemplate.query(sql, userRowMapper, userId, otherUserId);
+    }
+
+    @Override
+    public void deleteUser(int userId) {
+        jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", userId);
     }
 
     private final RowMapper<User> userRowMapper = (resultSet, rowNum) -> {

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MpaRatings;
 import lombok.RequiredArgsConstructor;
+
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -20,7 +20,7 @@ import java.util.Set;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FilmDbStorage implements FilmStorage{
+public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
 
@@ -30,7 +30,7 @@ public class FilmDbStorage implements FilmStorage{
                 "FROM films AS f, ratings AS mpa\n" +
                 "WHERE f.rating_id = mpa.rating_id\n" +
                 "ORDER BY f.film_id ASC";
-        return jdbcTemplate.query(sql,filmMapper);
+        return jdbcTemplate.query(sql, filmMapper);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class FilmDbStorage implements FilmStorage{
                 " VALUES (?, ?, ?, ?, ?, ?)";
         final GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement psst = connection.prepareStatement(sql,  new String[] { "film_id" });
+            PreparedStatement psst = connection.prepareStatement(sql, new String[]{"film_id"});
             psst.setString(1, film.getName());
             psst.setString(2, film.getDescription());
             psst.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -106,6 +106,11 @@ public class FilmDbStorage implements FilmStorage{
         return jdbcTemplate.query(sql, filmMapper, count);
     }
 
+    @Override
+    public void deleteFilm(int filmId) {
+        jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
+    }
+
     private void updateGenreByFilm(Film data) {
         final long filmId = data.getId();
         final String sql = "DELETE FROM film_genre WHERE film_id = ?";
@@ -116,14 +121,15 @@ public class FilmDbStorage implements FilmStorage{
         }
         List<Genre> genreList = new ArrayList<>(genres);
         jdbcTemplate.batchUpdate("INSERT INTO film_genre (film_id, genre_id) VALUES (?,?)",
-        new BatchPreparedStatementSetter() {
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setLong(1, data.getId());
-                ps.setInt(2, genreList.get(i).getId());
-            }
-            public int getBatchSize() {
-                return genreList.size();
-            }
-        });
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setLong(1, data.getId());
+                        ps.setInt(2, genreList.get(i).getId());
+                    }
+
+                    public int getBatchSize() {
+                        return genreList.size();
+                    }
+                });
     }
 }

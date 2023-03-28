@@ -34,20 +34,20 @@ CREATE TABLE IF NOT EXISTS films
 
 CREATE TABLE IF NOT EXISTS friendship
 (
-    user_id      INT NOT NULL REFERENCES users(user_id),
-    friend_id 	 INT NOT NULL REFERENCES users(user_id),
+    user_id      INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    friend_id 	 INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, friend_id)
 );
 
 CREATE TABLE IF NOT EXISTS film_genre (
-    film_id     INT REFERENCES films (film_id),
-    genre_id    INT REFERENCES genre (genre_id),
+    film_id     INT REFERENCES films (film_id) ON DELETE CASCADE,
+    genre_id    INT REFERENCES genre (genre_id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, genre_id)
 );
 
 CREATE TABLE IF NOT EXISTS popular_films (
-    film_id     BIGINT REFERENCES films (film_id),
-    user_id     BIGINT REFERENCES users (user_id),
+    film_id     BIGINT REFERENCES films (film_id) ON DELETE CASCADE,
+    user_id     BIGINT REFERENCES users (user_id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, user_id)
 
 );

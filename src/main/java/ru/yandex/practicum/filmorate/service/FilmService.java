@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+
 import java.time.LocalDate;
 import java.util.*;
 
@@ -51,13 +52,18 @@ public class FilmService {
         return filmStorage.getPopularFilms(count);
     }
 
-    void validateId(int filmId, int userId){
-        if(filmId <=0 || userId <= 0)
+    void validateId(int filmId, int userId) {
+        if (filmId <= 0 || userId <= 0)
             throw new NotFoundException("Некорректный id фильма или пользователя!");
     }
+
     public void validate(Film film) {
         if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(DATE)) {
             throw new ValidationException("Дата фильма не модет быть " + DATE);
         }
+    }
+
+    public void deleteFilm(int filmId) {
+        filmStorage.deleteFilm(filmId);
     }
 }
