@@ -15,10 +15,12 @@ import java.util.List;
 @Slf4j
 public class MpaRatingsController {
     MpaRatingService mpaRatingService;
+
     @Autowired
-    public MpaRatingsController(MpaRatingService mpaRatingService){
+    public MpaRatingsController(MpaRatingService mpaRatingService) {
         this.mpaRatingService = mpaRatingService;
     }
+
     @GetMapping("/mpa")
     public List<MpaRatings> getAllMpa() {
         log.info("Получение списка всех рейтингов");

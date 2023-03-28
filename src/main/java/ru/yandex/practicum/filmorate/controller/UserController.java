@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -65,5 +67,11 @@ public class UserController {
     public List<User> getListOfMutualFriends(@PathVariable int id, @PathVariable int otherId) {
         log.info("Получение списка общих друзей", id, otherId);
         return userService.getListOfMutualFriends(id, otherId);
+    }
+
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable int id) {
+        userService.deleteUser(id);
+        log.info("Пользователь с идентификатором: " + id + " удален.");
     }
 }
