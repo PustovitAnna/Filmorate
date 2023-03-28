@@ -6,16 +6,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -23,14 +24,24 @@ import java.util.Set;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
+    private final DirectorStorage directorStorage;
 
     @Override
     public List<Film> findAll() {
+        Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
         final String sql = "SELECT f.*, mpa.name_rating\n" +
                 "FROM films AS f, ratings AS mpa\n" +
                 "WHERE f.rating_id = mpa.rating_id\n" +
                 "ORDER BY f.film_id ASC";
-        return jdbcTemplate.query(sql, filmMapper);
+        List<Film> films =  jdbcTemplate.query(sql, filmMapper);
+        if (films.isEmpty()) {
+            return films;
+        }
+        String sql1 = "SELECT *,df.film_id " +
+                "FROM DIRECTORS d " +
+                "LEFT JOIN DIRECTORS_FILMS df ON d.director_id = df.director_id ";
+        jdbcTemplate.query(sql1, (rs, rowNum) -> assignDirectors(rs, films, filmsDirectors));
+        return films;
     }
 
     @Override
@@ -50,6 +61,7 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(keyHolder.getKey().intValue());
         updateGenreByFilm(film);
+        saveGenre(film);
         return getFilmById(film.getId());
     }
 
@@ -64,20 +76,28 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("" + film.getId());
         }
         updateGenreByFilm(film);
+        saveGenre(film);
         return getFilmById(film.getId());
     }
 
     @Override
     public Film getFilmById(int id) {
+        Set<Director> filmDirectors = new HashSet<>();
         final String sql = "SELECT f.*, mpa.name_rating\n" +
                 "FROM films AS f, ratings AS mpa\n" +
                 "WHERE f.rating_id = mpa.rating_id\n" +
                 "AND f.film_id = ?";// "SELECT * FROM films WHERE film_id = ?";
         //return jdbcTemplate.query(sql, filmRowMapper)
-        return jdbcTemplate.query(sql, filmMapper, id)
+        Film film = jdbcTemplate.query(sql, filmMapper, id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("temp" + id));
+        jdbcTemplate.query("SELECT *,df.film_id " +
+                        "FROM DIRECTORS d " +
+                        "LEFT JOIN DIRECTORS_FILMS df ON d.director_id = df.director_id " +
+                        "WHERE film_id=?",
+                ((rs, rowNum) -> assignDirector(rs, film, filmDirectors)), id);
+        return film;
     }
 
     @Override
@@ -98,17 +118,89 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularFilms(int count) { //Integer
+        Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
         String sql = "SELECT f.*, mpa.name_rating\n" +
                 "FROM films AS f, ratings AS mpa\n" +
                 "WHERE f.rating_id = mpa.rating_id\n" +
                 "ORDER BY f.rate DESC, film_id ASC\n" +
                 "LIMIT ?";
-        return jdbcTemplate.query(sql, filmMapper, count);
+        List<Film> films = jdbcTemplate.query(sql, filmMapper, count);
+        String sql1 = "SELECT *,df.film_id " +
+                "FROM DIRECTORS d " +
+                "LEFT JOIN DIRECTORS_FILMS df ON d.director_id = df.director_id " +
+                "WHERE df.film_id " +
+                "IN (" + films.stream().
+                map(film -> String.valueOf(film.getId())).collect(Collectors.joining(",")) + ")";
+        jdbcTemplate.query(sql1, (rs, rowNum) -> assignDirectors(rs, films, filmsDirectors));
+        return films;
     }
 
     @Override
     public void deleteFilm(int filmId) {
         jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
+    }
+
+    @Override
+    public List<Film> getFilmByDirectorByYear(int directorId, String sortBy) {
+        Director director = directorStorage.getDirectorById(directorId);
+        if (director == null) {
+            throw new NotFoundException("Режиссера с идентификатором: " + directorId + " не существует.");
+        }
+        List<Film> films = jdbcTemplate.query("SELECT *, mpa.name_rating " +
+                        "FROM films f " +
+                        "LEFT JOIN ratings mpa ON f.rating_id = mpa.rating_id " +
+                        "LEFT JOIN DIRECTORS_FILMS df ON f.film_id = df.film_id " +
+                        "WHERE df.director_id = ? " +
+                        "ORDER BY f.release_date",
+                filmMapper,directorId);
+        if (films.isEmpty()) {
+            return films;
+        }
+        Set<Director> directors = new HashSet<>();
+        directors.add(director);
+        for (Film film1 : films) {
+            film1.setDirectors(directors);
+        }
+        return films;
+    }
+
+    @Override
+    public List<Film> getFilmByDirectorByLikes(int directorId, String sortBy) {
+        Director director = directorStorage.getDirectorById(directorId);
+        if (director == null) {
+            throw new NotFoundException("Режиссера с идентификатором: " + directorId + " не существует.");
+        }
+        List<Film> films = jdbcTemplate.query("SELECT *, mpa.name_rating " +
+                        "FROM films f " +
+                        "LEFT JOIN ratings mpa ON f.rating_id = mpa.rating_id " +
+                        "LEFT JOIN DIRECTORS_FILMS df ON f.film_id = df.film_id " +
+                        "WHERE df.director_id = ? " +
+                        "ORDER BY f.rate",
+                filmMapper,directorId);
+        if (films.isEmpty()) {
+            return films;
+        }
+        Set<Director> directors = new HashSet<>();
+        directors.add(director);
+        for (Film film1 : films) {
+            film1.setDirectors(directors);
+        }
+        return films;
+    }
+
+    private List<Film> assignDirectors(ResultSet rs, List<Film> films, Map<Integer, Set<Director>> filmsDirectors) throws SQLException {
+        final int filmId = rs.getInt("film_id");
+        Set<Director> setDirectors = filmsDirectors.getOrDefault(filmId, new HashSet<>());
+        setDirectors.add(directorMapper(rs));
+        filmsDirectors.put(filmId, setDirectors);
+        films.forEach(film -> film.setDirectors(filmsDirectors.getOrDefault(film.getId(), new HashSet<>())));
+        return films;
+    }
+
+    private Film assignDirector(ResultSet rs, Film film, Set<Director> filmDirectors) throws SQLException {
+        filmDirectors.add(directorMapper(rs));
+        film.setDirectors(filmDirectors);
+        return film;
     }
 
     private void updateGenreByFilm(Film data) {
@@ -129,6 +221,32 @@ public class FilmDbStorage implements FilmStorage {
 
                     public int getBatchSize() {
                         return genreList.size();
+                    }
+                });
+    }
+
+    private Director directorMapper(ResultSet rs) throws SQLException {
+        Director director = new Director();
+        director.setId(rs.getInt("director_id"));
+        director.setName(rs.getString("name_director"));
+        return director;
+    }
+    private void saveGenre(Film film) {
+        jdbcTemplate.update("DELETE DIRECTORS_FILMS WHERE film_id=?", film.getId());
+        if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
+            return;
+        }
+        final Set<Director> directors = new HashSet<>(film.getDirectors());
+        final ArrayList<Director> directors1 = new ArrayList<>(directors);
+        jdbcTemplate.batchUpdate("INSERT INTO DIRECTORS_FILMS(director_id,film_id) VALUES (?,?)",
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setInt(1, directors1.get(i).getId());
+                        ps.setLong(2, film.getId());
+                    }
+
+                    public int getBatchSize() {
+                        return directors1.size();
                     }
                 });
     }
