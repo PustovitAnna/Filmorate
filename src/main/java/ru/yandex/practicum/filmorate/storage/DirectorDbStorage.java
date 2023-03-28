@@ -29,10 +29,10 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Director getDirectorById(int directorId) {
         return jdbcTemplate.query("SELECT * FROM DIRECTORS WHERE director_id = ?",
-                        ((rs, rowNum) -> directorMapper(rs)), directorId).
-                stream().
-                findAny().
-                orElseThrow(() -> new NotFoundException("Режиссер с id: " + directorId + " не был найден."));
+                        ((rs, rowNum) -> directorMapper(rs)), directorId)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Режиссер с id: " + directorId + " не был найден."));
     }
 
     @Override
