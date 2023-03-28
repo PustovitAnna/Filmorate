@@ -33,7 +33,7 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM films AS f, ratings AS mpa\n" +
                 "WHERE f.rating_id = mpa.rating_id\n" +
                 "ORDER BY f.film_id ASC";
-        List<Film> films =  jdbcTemplate.query(sql, filmMapper);
+        List<Film> films = jdbcTemplate.query(sql, filmMapper);
         if (films.isEmpty()) {
             return films;
         }
@@ -129,8 +129,8 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM DIRECTORS d " +
                 "LEFT JOIN DIRECTORS_FILMS df ON d.director_id = df.director_id " +
                 "WHERE df.film_id " +
-                "IN (" + films.stream().
-                map(film -> String.valueOf(film.getId())).collect(Collectors.joining(",")) + ")";
+                "IN (" + films.stream()
+                .map(film -> String.valueOf(film.getId())).collect(Collectors.joining(",")) + ")";
         jdbcTemplate.query(sql1, (rs, rowNum) -> assignDirectors(rs, films, filmsDirectors));
         return films;
     }
@@ -152,7 +152,7 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN DIRECTORS_FILMS df ON f.film_id = df.film_id " +
                         "WHERE df.director_id = ? " +
                         "ORDER BY f.release_date",
-                filmMapper,directorId);
+                filmMapper, directorId);
         if (films.isEmpty()) {
             return films;
         }
@@ -176,7 +176,7 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN DIRECTORS_FILMS df ON f.film_id = df.film_id " +
                         "WHERE df.director_id = ? " +
                         "ORDER BY f.rate",
-                filmMapper,directorId);
+                filmMapper, directorId);
         if (films.isEmpty()) {
             return films;
         }
@@ -231,6 +231,7 @@ public class FilmDbStorage implements FilmStorage {
         director.setName(rs.getString("name_director"));
         return director;
     }
+
     private void saveGenre(Film film) {
         jdbcTemplate.update("DELETE DIRECTORS_FILMS WHERE film_id=?", film.getId());
         if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
