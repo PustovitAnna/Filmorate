@@ -111,6 +111,26 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
     }
 
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        List<Film> listFilms = new ArrayList<>();
+        String sql;
+        if (by.contains("title") && by.contains("director")){
+            sql = "SELECT f.name, f.description, f.release_date, f.duration, D.DIRECTOR_NAME, r.name_rating, f.rate" + //   ///   //////    ////////// режиссёр
+                  "FROM films f " +
+                  "LEFT JOIN ratings r ON f.rating_id = r.rating_id " +
+                  "LEFT JOIN DIRECTOR D ON F.DIRECTOR_ID = D.DIRECTOR_ID";
+            listFilms = jdbcTemplate.query(sql,(rs, rowNum) -> filmMapper.mapRow(rs,rowNum));
+        }
+        if (by.equals("title")){
+
+        }
+        if (by.equals("director")){
+
+        }
+        return listFilms;
+    }
+
     private void updateGenreByFilm(Film data) {
         final long filmId = data.getId();
         final String sql = "DELETE FROM film_genre WHERE film_id = ?";

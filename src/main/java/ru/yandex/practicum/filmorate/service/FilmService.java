@@ -66,4 +66,7 @@ public class FilmService {
     public void deleteFilm(int filmId) {
         filmStorage.deleteFilm(filmId);
     }
+    public List<Film> searchFilms(String query,String by){
+        return filmStorage.searchFilms(query, by);
+    }
 }

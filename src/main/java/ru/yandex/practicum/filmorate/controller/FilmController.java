@@ -67,4 +67,12 @@ public class FilmController {
         filmService.deleteFilm(id);
         log.info("Фильм с идентификатором: " + id + " удален.");
     }
+
+
+    @GetMapping("/fimls/search")
+    public List<Film> searchFilms(@RequestParam(name = "query")String query,
+                                 @RequestParam(name = "by", required = false)String by){
+        log.info("Поиск фильма", query,by);
+        return filmService.searchFilms(query,by);
+    }
 }
