@@ -45,8 +45,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User put(User user) {
         String sql = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
-        int count = jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName()
-                , user.getBirthday(), user.getId());
+        int count = jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(),
+                user.getBirthday(), user.getId());
         if (count == 0) {
             log.info("Обновление пользователя: {}", user);
             throw new NotFoundException("Пользователь еще не создан!");
@@ -58,9 +58,9 @@ public class UserDbStorage implements UserStorage {
     public User getUserById(int id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
         return jdbcTemplate.query(sql, userRowMapper, id)
-                .stream().
-                findAny().
-                orElseThrow(() -> new NotFoundException("Пользватель с id " + id + "не найден"));
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Пользватель с id " + id + "не найден"));
     }
 
     @Override
