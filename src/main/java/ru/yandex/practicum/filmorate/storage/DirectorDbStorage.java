@@ -37,8 +37,8 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director update(Director director) {
-        int row = jdbcTemplate.
-                update("UPDATE DIRECTORS SET name_director = ? WHERE director_id = ?", director.getName(), director.getId());
+        int row = jdbcTemplate
+                .update("UPDATE DIRECTORS SET name_director = ? WHERE director_id = ?", director.getName(), director.getId());
         if (row == 0) {
             throw new NotFoundException("Режиссер с id: " + director.getId() + "не был найден.");
         }
