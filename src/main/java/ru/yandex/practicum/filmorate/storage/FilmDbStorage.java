@@ -142,16 +142,16 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchFilms(String query, String by) {
-        String lowCase = "%" + query.toLowerCase(Locale.ENGLISH) + "%";
+        String keyword = "%" + query.toLowerCase(Locale.ENGLISH) + "%";
         if (by.contains("title") && by.contains("director")) {
             Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
             String sql = "SELECT *, r.name_rating FROM films f " +
                     "LEFT JOIN ratings r ON f.rating_id = r.rating_id " +
                     "LEFT JOIN directors_films df ON f.film_id = df.film_id " +
                     "LEFT JOIN directors d ON d.director_id = df.director_id " +
-                    "WHERE LOWER(d.name_director) like ? OR LOWER(name) like ? " +
+                    "WHERE LOWER(d.name_director) keyword ? OR LOWER(name) keyword ? " +
                     "ORDER BY f.rate DESC";
-            List<Film> films = jdbcTemplate.query(sql, filmMapper, lowCase, lowCase);
+            List<Film> films = jdbcTemplate.query(sql, filmMapper, keyword, keyword);
             String sql2 = "SELECT *,df.film_id " +
                     "FROM directors d " +
                     "LEFT JOIN directors_films df ON d.director_id = df.director_id " +
@@ -164,9 +164,9 @@ public class FilmDbStorage implements FilmStorage {
             Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
             String sql = "SELECT *, r.name_rating FROM films f " +
                     "LEFT JOIN ratings r ON f.rating_id = r.rating_id " +
-                    "WHERE LOWER(name) like ? " +
+                    "WHERE LOWER(name) keyword ? " +
                     "ORDER BY f.rate DESC";
-            List<Film> films = jdbcTemplate.query(sql, filmMapper, lowCase);
+            List<Film> films = jdbcTemplate.query(sql, filmMapper, keyword);
             String sql2 = "SELECT *,df.film_id " +
                     "FROM directors d " +
                     "LEFT JOIN directors_films df ON d.director_id = df.director_id " +
@@ -180,9 +180,9 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN ratings r ON f.rating_id = r.rating_id " +
                 "LEFT JOIN directors_films df ON f.film_id = df.film_id " +
                 "LEFT JOIN directors d ON d.director_id = df.director_id " +
-                "WHERE LOWER(d.name_director) like ? " +
+                "WHERE LOWER(d.name_director) keyword ? " +
                 "ORDER BY f.rate DESC";
-        List<Film> films = jdbcTemplate.query(sql, filmMapper, lowCase);
+        List<Film> films = jdbcTemplate.query(sql, filmMapper, keyword);
         String sql2 = "SELECT *,df.film_id " +
                 "FROM directors d " +
                 "LEFT JOIN directors_films df ON d.director_id = df.director_id " +
