@@ -67,6 +67,10 @@ public class FilmService {
         filmStorage.deleteFilm(filmId);
     }
 
+    public List<Film> searchFilms(String query, String by) {
+        return filmStorage.searchFilms(query, by);
+    }
+
     public List<Film> getFilmByDirector(int directorId, String sortBy) {
         if (sortBy.equals("year")) {
             return filmStorage.getFilmByDirectorByYear(directorId, sortBy);

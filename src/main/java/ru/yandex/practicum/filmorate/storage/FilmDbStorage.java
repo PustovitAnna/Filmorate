@@ -61,7 +61,7 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(keyHolder.getKey().intValue());
         updateGenreByFilm(film);
-        saveGenre(film);
+        saveDirector(film);
         return getFilmById(film.getId());
     }
 
@@ -76,7 +76,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("" + film.getId());
         }
         updateGenreByFilm(film);
-        saveGenre(film);
+        saveDirector(film);
         return getFilmById(film.getId());
     }
 
@@ -138,6 +138,68 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteFilm(int filmId) {
         jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        String queryLowerCase = "%" + query.toLowerCase(Locale.ENGLISH) + "%";
+        if (by.contains("title") && by.contains("director")) {
+            Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
+            String sql = "SELECT *, r.name_rating FROM films f " +
+                    "LEFT JOIN ratings r ON f.rating_id = r.rating_id " +
+                    "LEFT JOIN directors_films df ON f.film_id = df.film_id " +
+                    "LEFT JOIN directors d ON d.director_id = df.director_id " +
+                    "WHERE LOWER(d.name_director) LIKE ? OR LOWER(name) LIKE ? " +
+                    "ORDER BY f.rate DESC";
+            List<Film> films = jdbcTemplate.query(sql, filmMapper, queryLowerCase, queryLowerCase);
+            String sql2 = "SELECT *,df.film_id " +
+                    "FROM directors d " +
+                    "LEFT JOIN directors_films df ON d.director_id = df.director_id " +
+                    "WHERE df.film_id IN (" + films.stream()
+                    .map(film -> String.valueOf(film.getId())).collect(Collectors.joining(",")) + ")";
+            jdbcTemplate.query(sql2, (rs, rowNum) -> assignDirectors(rs, films, filmsDirectors));
+            return films;
+        }
+        if (by.equals("title")) {
+            Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
+            String sql = "SELECT *, r.name_rating FROM films f " +
+                    "LEFT JOIN ratings r ON f.rating_id = r.rating_id " +
+                    "WHERE LOWER(name) LIKE ? " +
+                    "ORDER BY f.rate DESC";
+            List<Film> films = jdbcTemplate.query(sql, filmMapper, queryLowerCase);
+            String sql2 = "SELECT *,df.film_id " +
+                    "FROM directors d " +
+                    "LEFT JOIN directors_films df ON d.director_id = df.director_id " +
+                    "WHERE df.film_id IN (" + films.stream()
+                    .map(film -> String.valueOf(film.getId())).collect(Collectors.joining(",")) + ")";
+            jdbcTemplate.query(sql2, (rs, rowNum) -> assignDirectors(rs, films, filmsDirectors));
+            return films;
+        }
+        Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
+        String sql = "SELECT *, r.name_rating FROM films f " +
+                "LEFT JOIN ratings r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN directors_films df ON f.film_id = df.film_id " +
+                "LEFT JOIN directors d ON d.director_id = df.director_id " +
+                "WHERE LOWER(d.name_director) LIKE ? " +
+                "ORDER BY f.rate DESC";
+        List<Film> films = jdbcTemplate.query(sql, filmMapper, queryLowerCase);
+        String sql2 = "SELECT *,df.film_id " +
+                "FROM directors d " +
+                "LEFT JOIN directors_films df ON d.director_id = df.director_id " +
+                "WHERE df.film_id IN (" + films.stream()
+                .map(film -> String.valueOf(film.getId())).collect(Collectors.joining(",")) + ")";
+        jdbcTemplate.query(sql2, (rs, rowNum) -> assignDirectors(rs, films, filmsDirectors));
+        return films;
+    }
+
+    private List<String> mapperName(ResultSet rs, List<String> names) throws SQLException {
+        names.add(rs.getString("name"));
+        return names;
+    }
+
+    private List<String> mapperNameDirector(ResultSet rs, List<String> names) throws SQLException {
+        names.add(rs.getString("name_director"));
+        return names;
     }
 
     @Override
@@ -232,7 +294,7 @@ public class FilmDbStorage implements FilmStorage {
         return director;
     }
 
-    private void saveGenre(Film film) {
+    private void saveDirector(Film film) {
         jdbcTemplate.update("DELETE DIRECTORS_FILMS WHERE film_id=?", film.getId());
         if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
             return;

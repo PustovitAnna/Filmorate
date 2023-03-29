@@ -34,25 +34,25 @@ public class FilmController {
 
     @PutMapping("/films")
     public Film put(@Valid @RequestBody Film film) {
-        log.info("Обновление фильма", film);
+        log.info("Обновление фильма: {}", film);
         return filmService.put(film);
     }
 
     @GetMapping("/films/{id}")
     public Film getFilmById(@PathVariable int id) {
-        log.info("Получение фильма по id", id);
+        log.info("Получение фильма по id: {}", id);
         return filmService.getFilmById(id);
     }
 
     @PutMapping("/films/{id}/like/{userId}")
     public void addLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Фильму ставят лайк", id, userId);
+        log.info("Фильму ставят лайк: {},{}", id, userId);
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public void deleteLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Фильму убирают лайк", id, userId);
+        log.info("Фильму убирают лайк: {},{}", id, userId);
         filmService.deleteLike(id, userId);
     }
 
@@ -66,6 +66,15 @@ public class FilmController {
     public void deleteFilm(@PathVariable int id) {
         filmService.deleteFilm(id);
         log.info("Фильм с идентификатором: " + id + " удален.");
+    }
+
+
+    @GetMapping("/films/search")
+    public List<Film> searchFilms(@RequestParam(value = "query") String query,
+                                  @RequestParam(value = "by") String by) {
+        List<Film> search = filmService.searchFilms(query, by);
+        log.info("Поиск фильма");
+        return search;
     }
 
     @GetMapping("/films/director/{directorId}")
