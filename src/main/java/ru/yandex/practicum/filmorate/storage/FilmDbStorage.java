@@ -250,7 +250,8 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
-    private List<Film> assignDirectors(ResultSet rs, List<Film> films, Map<Integer, Set<Director>> filmsDirectors) throws SQLException {
+    @Override
+    public List<Film> assignDirectors(ResultSet rs, List<Film> films, Map<Integer, Set<Director>> filmsDirectors) throws SQLException {
         final int filmId = rs.getInt("film_id");
         Set<Director> setDirectors = filmsDirectors.getOrDefault(filmId, new HashSet<>());
         setDirectors.add(directorMapper(rs));

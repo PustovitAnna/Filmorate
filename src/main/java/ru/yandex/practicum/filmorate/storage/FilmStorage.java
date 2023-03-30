@@ -1,24 +1,29 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface FilmStorage {
-    public Collection<Film> findAll();
+    Collection<Film> findAll();
 
-    public Film create(Film film);
+    Film create(Film film);
 
-    public Film put(Film film);
+    Film put(Film film);
 
-    public Film getFilmById(int id);
+    Film getFilmById(int id);
 
-    public void addLike(int filmId, int userId);
+    void addLike(int filmId, int userId);
 
-    public void deleteLike(int filmId, int userId);
+    void deleteLike(int filmId, int userId);
 
-    public List<Film> getPopularFilms(int count);//Integer
+    List<Film> getPopularFilms(int count);//Integer
 
     void deleteFilm(int filmId);
 
@@ -27,4 +32,6 @@ public interface FilmStorage {
     List<Film> getFilmByDirectorByYear(int directorId, String sortBy);
 
     List<Film> getFilmByDirectorByLikes(int directorId, String sortBy);
+
+    List<Film> assignDirectors(ResultSet rs, List<Film> films, Map<Integer, Set<Director>> filmsDirectors) throws SQLException;
 }

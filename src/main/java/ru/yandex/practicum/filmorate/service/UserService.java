@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -25,7 +26,7 @@ public class UserService {
     public User create(User user) {
         validate(user);
         if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
-            if (user.getEmail().contains(" ") || user.getEmail().isEmpty() || user.getEmail() == null || user.getEmail().isBlank()) {
+            if (user.getEmail().contains(" ") || user.getEmail().isEmpty() || user.getEmail().isBlank()) {
                 throw new ValidationException("Логин не может содержать пробелы!");
             } else {
                 user.setName(user.getLogin());
@@ -70,13 +71,17 @@ public class UserService {
 
     public void validate(User user) {
         String nameAndLogin = user.getLogin();
-        if (nameAndLogin.contains(" ") || nameAndLogin.isEmpty() || nameAndLogin == null || nameAndLogin.isBlank()) {
+        if (nameAndLogin.contains(" ") || nameAndLogin.isEmpty() || nameAndLogin.isBlank()) {
             throw new ValidationException("Логин не может содержать пробелы!");
         }
     }
 
     public void deleteUser(int userId) {
         userStorage.deleteUser(userId);
+    }
+
+    public List<Film> getRecommendation(int id) {
+        return userStorage.getRecommendation(id);
     }
 }
 
