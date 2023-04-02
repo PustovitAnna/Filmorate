@@ -32,5 +32,6 @@ public interface UserStorage {
     List<Film> getRecommendation(int id);
 
     List<Feed> getFeed(Integer id);
+
     void saveFeed(Integer userId, EventType ev, Operation op, Integer entityId);
 }
