@@ -6,6 +6,9 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -14,10 +17,12 @@ import java.util.*;
 public class FilmService {
     static final LocalDate DATE = LocalDate.of(1895, 12, 28);
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Collection<Film> findAll() {
@@ -41,11 +46,13 @@ public class FilmService {
     public void addLike(int filmId, int userId) {
         validateId(filmId, userId);
         filmStorage.addLike(filmId, userId);
+        userStorage.saveFeed(userId, EventType.LIKE, Operation.ADD, filmId);
     }
 
     public void deleteLike(int filmId, int userId) {
         validateId(filmId, userId);
         filmStorage.deleteLike(filmId, userId);
+        userStorage.saveFeed(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     public List<Film> getPopular(int count) {
