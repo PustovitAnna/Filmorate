@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final UserStorage userStorage;
 
     @Override
     public List<Review> getAllReviews() {
@@ -58,6 +61,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 return ps;
             }, keyHolder);
             review.setReviewId(keyHolder.getKey().intValue());
+            userStorage.saveFeed(review.getUserId(), EventType.REVIEW, Operation.ADD, review.getReviewId());
             return review;
         } catch (ValidationException e) {
             throw new ValidationException("Review не прошел валидацию.");
@@ -73,12 +77,31 @@ public class ReviewDbStorage implements ReviewStorage {
         if (count == 0) {
             throw new NotFoundException("" + review.getReviewId());
         }
+        Integer userId = jdbcTemplate.query("SELECT u.user_id FROM users u " +
+                        "LEFT JOIN reviews r ON u.user_id = r.user_id " +
+                        "WHERE review_id = ?", (rs, rowNum) -> mapperInt(rs), review.getReviewId())
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Пользватель не найден"));
+        userStorage.saveFeed(userId, EventType.REVIEW, Operation.UPDATE, review.getReviewId());
         return getReviewById(review.getReviewId());
     }
 
     @Override
     public void del(int reviewId) {
+        Integer userId = jdbcTemplate.query("SELECT u.user_id FROM users u " +
+                        "LEFT JOIN reviews r ON u.user_id = r.user_id " +
+                        "WHERE review_id = ?", (rs, rowNum) -> mapperInt(rs), reviewId)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Пользватель не найден"));
         jdbcTemplate.update("DELETE FROM reviews WHERE review_id = ?", reviewId);
+        userStorage.saveFeed(userId, EventType.REVIEW, Operation.REMOVE, reviewId);
+    }
+
+    private Integer mapperInt(ResultSet rs) throws SQLException {
+        Integer userId = rs.getInt("user_id");
+        return userId;
     }
 
     @Override
@@ -114,6 +137,7 @@ public class ReviewDbStorage implements ReviewStorage {
             jdbcTemplate.update(sglRate, reviewId, userId, count);
         }
         updateUseful(count, reviewId);
+
     }
 
     @Override
@@ -139,5 +163,4 @@ public class ReviewDbStorage implements ReviewStorage {
         review.setUseful(rs.getInt("useful"));
         return review;
     }
-
 }

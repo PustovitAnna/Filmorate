@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,4 +30,8 @@ public interface UserStorage {
     void deleteUser(int userId);
 
     List<Film> getRecommendation(int id);
+
+    List<Feed> getFeed(Integer id);
+
+    void saveFeed(Integer userId, EventType ev, Operation op, Integer entityId);
 }
