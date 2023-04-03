@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, films, genres, ratings, friendship, film_genre, likes, DIRECTORS, DIRECTORS_FILMS,
+DROP TABLE IF EXISTS users, films, genres, ratings, friendship, film_genre, popular_films, DIRECTORS, DIRECTORS_FILMS,
                      reviews, reviews_ratings, FEED CASCADE;
 
 CREATE TABLE if not exists DIRECTORS (
