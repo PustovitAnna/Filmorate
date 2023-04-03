@@ -87,8 +87,7 @@ public class FilmDbStorage implements FilmStorage {
         final String sql = "SELECT f.*, mpa.name_rating\n" +
                 "FROM films AS f, ratings AS mpa\n" +
                 "WHERE f.rating_id = mpa.rating_id\n" +
-                "AND f.film_id = ?";// "SELECT * FROM films WHERE film_id = ?";
-        //return jdbcTemplate.query(sql, filmRowMapper)
+                "AND f.film_id = ?";
         Film film = jdbcTemplate.query(sql, filmMapper, id)
                 .stream()
                 .findAny()
@@ -103,9 +102,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(int filmId, int userId) {
+        Integer result1 = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM popular_films " +
+                "WHERE film_id = ? AND user_id = ?", Integer.class, filmId, userId);
+        if (result1 == 1) {
+            return;
+        }
         final String sql = "INSERT INTO popular_films (film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
-        final String sqlAddLike = "UPDATE films SET rate = rate + 1 WHERE film_id=?";//here was count
+        final String sqlAddLike = "UPDATE films SET rate = rate + 1 WHERE film_id=?";
         jdbcTemplate.update(sqlAddLike, filmId);
     }
 

@@ -41,19 +41,19 @@ public class UserController {
         return userService.put(user);
     }
 
-    @GetMapping("/users/{id}")                        // юзер по id (0)
+    @GetMapping("/users/{id}")
     public User getUserBiYd(@PathVariable int id) {
         log.info("Получение пользователя по id", id);
         return userService.getUserById(id);
     }
 
-    @PutMapping("/users/{id}/friends/{friendId}")     // добавить в друзья по id (1)
+    @PutMapping("/users/{id}/friends/{friendId}")
     public void addFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("Добавление пользователя в друзья", id);
         userService.addFriend(id, friendId);
     }
 
-    @DeleteMapping("/users/{id}/friends/{friendId}")   // удалить из друзей по id (2)
+    @DeleteMapping("/users/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("Удаление пользователя из друзей", friendId, id);
         userService.deleteFriend(id, friendId);
