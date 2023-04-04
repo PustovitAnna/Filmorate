@@ -19,7 +19,7 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Director create(Director director) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("DIRECTORS")
+                .withTableName("directors")
                 .usingGeneratedKeyColumns("director_id");
         int directorId = simpleJdbcInsert.executeAndReturnKey(director.toMap()).intValue();
         director.setId(directorId);
@@ -27,8 +27,8 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Director getDirectorById(int directorId) {
-        return jdbcTemplate.query("SELECT * FROM DIRECTORS WHERE director_id = ?",
+    public Director findById(int directorId) {
+        return jdbcTemplate.query("SELECT * FROM directors WHERE director_id = ?",
                         ((rs, rowNum) -> directorMapper(rs)), directorId)
                 .stream()
                 .findAny()
@@ -38,21 +38,21 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Director update(Director director) {
         int row = jdbcTemplate
-                .update("UPDATE DIRECTORS SET name_director = ? WHERE director_id = ?", director.getName(), director.getId());
+                .update("UPDATE directors SET name_director = ? WHERE director_id = ?", director.getName(), director.getId());
         if (row == 0) {
             throw new NotFoundException("Режиссер с id: " + director.getId() + "не был найден.");
         }
-        return getDirectorById(director.getId());
+        return findById(director.getId());
     }
 
     @Override
     public void delete(int directorId) {
-        jdbcTemplate.update("DELETE FROM DIRECTORS WHERE director_id = ?", directorId);
+        jdbcTemplate.update("DELETE FROM directors WHERE director_id = ?", directorId);
     }
 
     @Override
     public List<Director> getDirectors() {
-        return jdbcTemplate.query("SELECT * FROM DIRECTORS", ((rs, rowNum) -> directorMapper(rs)));
+        return jdbcTemplate.query("SELECT * FROM directors", ((rs, rowNum) -> directorMapper(rs)));
     }
 
     private Director directorMapper(ResultSet rs) throws SQLException {

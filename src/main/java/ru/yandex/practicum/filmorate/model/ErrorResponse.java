@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-public class ErrorResponse {
+public class ErrorResponse extends RuntimeException {
     String error;
 
     public ErrorResponse(String error) {

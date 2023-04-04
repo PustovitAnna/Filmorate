@@ -24,6 +24,6 @@ public class MpaRatingService {
 
     public MpaRatings getRatingById(int ratingId) {
         System.out.println("in SERVICE ID");
-        return mpaRatingsDbStorage.getRatingById(ratingId);
+        return mpaRatingsDbStorage.findById(ratingId);
     }
 }
