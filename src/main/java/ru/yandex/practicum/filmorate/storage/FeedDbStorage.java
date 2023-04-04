@@ -28,7 +28,7 @@ public class FeedDbStorage implements FeedStorage {
 
     private Feed mapperFeed(ResultSet rs) throws SQLException {
         Feed feed = new Feed();
-        feed.setTimestamp(rs.getInt("time_stamp"));
+        feed.setTimestamp(rs.getLong("time_stamp"));
         feed.setUserId(rs.getInt("user_id"));
         feed.setEventType(EventType.valueOf(rs.getString("event_type")));
         feed.setOperation(Operation.valueOf(rs.getString("operation")));
