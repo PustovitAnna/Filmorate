@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.util.Operation;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Feed {
-    private Long timestamp;
+    private int timestamp;
     private Integer userId;
     private EventType eventType;
     private Operation operation;
