@@ -88,7 +88,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void del(int reviewId) {
+    public void delete(int reviewId) {
         Integer userId = jdbcTemplate.query("SELECT u.user_id FROM users u " +
                         "LEFT JOIN reviews r ON u.user_id = r.user_id " +
                         "WHERE review_id = ?", (rs, rowNum) -> mapperInt(rs), reviewId)
@@ -141,7 +141,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void delLikeDislike(int reviewId, int userId, int count) {
+    public void deleteLikeDislike(int reviewId, int userId, int count) {
         String sglRate = "DELETE FROM reviews_ratings WHERE review_id = ? AND user_id = ?";
         jdbcTemplate.update(sglRate, reviewId, userId);
         updateUseful(count, reviewId);

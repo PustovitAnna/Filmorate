@@ -11,7 +11,7 @@ public interface ReviewStorage {
 
     Review put(Review review);
 
-    void del(int id);
+    void delete(int id);
 
     Review findById(int id);
 
@@ -19,7 +19,7 @@ public interface ReviewStorage {
 
     void addLikeDislike(int reviewId, int userId, int count);
 
-    void delLikeDislike(int reviewId, int userId, int count);
+    void deleteLikeDislike(int reviewId, int userId, int count);
 
 
 }

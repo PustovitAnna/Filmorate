@@ -30,8 +30,8 @@ public class ReviewService {
         return reviewStorage.put(review);
     }
 
-    public void del(int id) {
-        reviewStorage.del(id);
+    public void delete(int id) {
+        reviewStorage.delete(id);
     }
 
     public Review getReviewById(int id) {
@@ -48,9 +48,9 @@ public class ReviewService {
         log.info("Добавлен лайк {}", reviewStorage.findById(reviewId));
     }
 
-    public void delLike(int reviewId, int userId) {
+    public void deleteLike(int reviewId, int userId) {
         int dislike = -1;
-        reviewStorage.delLikeDislike(reviewId, userId, dislike);
+        reviewStorage.deleteLikeDislike(reviewId, userId, dislike);
     }
 
     public void addDislike(int reviewId, int userId) {
@@ -58,8 +58,8 @@ public class ReviewService {
         reviewStorage.addLikeDislike(reviewId, userId, like);
     }
 
-    public void delDislike(int reviewId, int userId) {
+    public void deleteDislike(int reviewId, int userId) {
         int dislike = 1;
-        reviewStorage.delLikeDislike(reviewId, userId, dislike);
+        reviewStorage.deleteLikeDislike(reviewId, userId, dislike);
     }
 }
