@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.EventType;
@@ -18,11 +19,13 @@ public class FilmService {
     static final LocalDate DATE = LocalDate.of(1895, 12, 28);
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, FeedStorage feedStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.feedStorage = feedStorage;
     }
 
     public Collection<Film> findAll() {
@@ -40,19 +43,19 @@ public class FilmService {
     }
 
     public Film getFilmById(int filmId) {
-        return filmStorage.getFilmById(filmId);
+        return filmStorage.findById(filmId);
     }
 
     public void addLike(int filmId, int userId) {
         validateId(filmId, userId);
         filmStorage.addLike(filmId, userId);
-        userStorage.saveFeed(userId, EventType.LIKE, Operation.ADD, filmId);
+        feedStorage.saveFeed(userId, EventType.LIKE, Operation.ADD, filmId);
     }
 
     public void deleteLike(int filmId, int userId) {
         validateId(filmId, userId);
         filmStorage.deleteLike(filmId, userId);
-        userStorage.saveFeed(userId, EventType.LIKE, Operation.REMOVE, filmId);
+        feedStorage.saveFeed(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     public List<Film> getPopular(int count) {

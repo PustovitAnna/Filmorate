@@ -19,13 +19,13 @@ public class DirectorController {
 
     @PostMapping
     public Director create(@Valid @RequestBody Director director) {
-        Director director1 = directorService.create(director);
-        log.debug("Добавлен режиссер: {} ", director1);
-        return director1;
+        Director directorRequest = directorService.create(director);
+        log.debug("Добавлен режиссер: {} ", directorRequest);
+        return directorRequest;
     }
 
     @GetMapping("/{id}")
-    public Director getDirectorById(@PathVariable int id) {
+    public Director getDirectorById(@Valid @PathVariable int id) {
         Director director = directorService.getDirectorById(id);
         log.debug("Получен режиссер: {} ", director);
         return director;
@@ -33,9 +33,9 @@ public class DirectorController {
 
     @PutMapping
     public Director update(@RequestBody Director director) {
-        Director director1 = directorService.update(director);
-        log.debug("Обновлен режиссер: {} ", director1);
-        return director1;
+        Director directorRequest = directorService.update(director);
+        log.debug("Обновлен режиссер: {} ", directorRequest);
+        return directorRequest;
     }
 
     @DeleteMapping("/{id}")

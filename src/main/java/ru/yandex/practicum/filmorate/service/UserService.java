@@ -7,17 +7,22 @@ import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.util.*;
 
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FeedStorage feedStorage) {
         this.userStorage = userStorage;
+        this.feedStorage = feedStorage;
     }
 
     public Collection<User> findAll() {
@@ -42,17 +47,19 @@ public class UserService {
     }
 
     public User getUserById(int userId) {
-        return userStorage.getUserById(userId);
+        return userStorage.findById(userId);
     }
 
     public void addFriend(int userId, int friendId) {
         validateId(userId, friendId);
         userStorage.addFriend(userId, friendId);
+        feedStorage.saveFeed(userId, EventType.FRIEND, Operation.ADD, friendId);
     }
 
     public void deleteFriend(int userId, int friendId) {
         validateId(userId, friendId);
         userStorage.deleteFriend(userId, friendId);
+        feedStorage.saveFeed(userId, EventType.FRIEND, Operation.REMOVE, friendId);
     }
 
     public List<User> getFriendList(int userId) {
@@ -86,7 +93,11 @@ public class UserService {
     }
 
     public List<Feed> getFeed(Integer id) {
-        return userStorage.getFeed(id);
+        User user = userStorage.findById(id);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с id: " + id + " не найден.");
+        }
+        return feedStorage.getFeed(id);
     }
 }
 

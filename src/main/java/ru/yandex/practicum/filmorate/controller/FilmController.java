@@ -78,7 +78,8 @@ public class FilmController {
     }
 
     @GetMapping("/films/director/{directorId}")
-    public List<Film> getFilmByDirector(@PathVariable int directorId, @RequestParam(value = "sortBy") String sortBy) {
+    public List<Film> getFilmByDirector(@PathVariable int directorId, @RequestParam(value = "sortBy",
+            defaultValue = "likes", required = false) String sortBy) {
         List<Film> filmsDirector = filmService.getFilmByDirector(directorId, sortBy);
         log.debug("Получен список фильмов режиссера с идентификатором: {} ", directorId);
         return filmsDirector;

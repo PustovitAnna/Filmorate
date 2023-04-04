@@ -8,11 +8,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.util.EventType;
-import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -61,11 +58,11 @@ public class UserDbStorage implements UserStorage {
             log.info("Обновление пользователя: {}", user);
             throw new NotFoundException("Пользователь еще не создан!");
         }
-        return getUserById(user.getId());
+        return findById(user.getId());
     }
 
     @Override
-    public User getUserById(int id) {
+    public User findById(int id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
         return jdbcTemplate.query(sql, userRowMapper, id)
                 .stream()
@@ -77,19 +74,17 @@ public class UserDbStorage implements UserStorage {
     public void addFriend(int userId, int friendId) {
         String sql = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, userId, friendId);
-        saveFeed(userId, EventType.FRIEND, Operation.ADD, friendId);
     }
 
     @Override
     public void deleteFriend(int userId, int friendId) {
         String sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sql, userId, friendId);
-        saveFeed(userId, EventType.FRIEND, Operation.REMOVE, friendId);
     }
 
     @Override
     public List<User> getFriends(int id) {
-        getUserById(id);
+        findById(id);
         String sql = "SELECT * FROM users WHERE user_id IN (SELECT friend_id FROM friendship WHERE user_id = ?)";
         return jdbcTemplate.query(sql, userRowMapper, id);
     }
@@ -143,36 +138,6 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.query(sql3, (rs, rowNum) -> filmStorage.assignDirectors(rs, films, filmsDirectors));
         return films;
     }
-
-    @Override
-    public List<Feed> getFeed(Integer id) {
-        User user = getUserById(id);
-        if (user == null) {
-            throw new NotFoundException("Пользователь с id: " + id + " не найден.");
-        }
-        return jdbcTemplate.query("SELECT * " +
-                "FROM FEED " +
-                "WHERE user_id = ? " +
-                "ORDER BY time_stamp", ((rs, rowNum) -> mapperFeed(rs)), id);
-    }
-
-    private Feed mapperFeed(ResultSet rs) throws SQLException {
-        Feed feed = new Feed();
-        feed.setTimestamp(rs.getLong("time_stamp"));
-        feed.setUserId(rs.getInt("user_id"));
-        feed.setEventType(EventType.valueOf(rs.getString("event_type")));
-        feed.setOperation(Operation.valueOf(rs.getString("operation")));
-        feed.setEventId(rs.getInt("event_id"));
-        feed.setEntityId(rs.getInt("entity_id"));
-        return feed;
-    }
-
-    @Override
-    public void saveFeed(Integer userId, EventType ev, Operation op, Integer entityId) {
-        jdbcTemplate.update("INSERT INTO FEED (time_stamp, user_id, event_type, operation, entity_id) " +
-                "VALUES (?,?,?,?,?)", System.currentTimeMillis(), userId, String.valueOf(ev), String.valueOf(op), entityId);
-    }
-
 
     private List<Long> mapFilmsId(ResultSet resultSet, List<Long> usersFilms) throws SQLException {
         final Long a = resultSet.getLong("film_id");

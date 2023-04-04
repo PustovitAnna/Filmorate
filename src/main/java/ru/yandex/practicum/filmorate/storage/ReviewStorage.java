@@ -13,7 +13,7 @@ public interface ReviewStorage {
 
     void del(int id);
 
-    Review getReviewById(int id);
+    Review findById(int id);
 
     List<Review> getAllReviewByFilmId(int filmId, int count);
 

@@ -35,7 +35,7 @@ public class ReviewService {
     }
 
     public Review getReviewById(int id) {
-        return reviewStorage.getReviewById(id);
+        return reviewStorage.findById(id);
     }
 
     public List<Review> getAllReviewByFilmId(int filmId, int count) {
@@ -45,7 +45,7 @@ public class ReviewService {
     public void addLike(int reviewId, int userId) {
         int like = 1;
         reviewStorage.addLikeDislike(reviewId, userId, like);
-        log.info("Добавлен лайк {}", reviewStorage.getReviewById(reviewId));
+        log.info("Добавлен лайк {}", reviewStorage.findById(reviewId));
     }
 
     public void delLike(int reviewId, int userId) {

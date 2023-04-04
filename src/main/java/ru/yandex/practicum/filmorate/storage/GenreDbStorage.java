@@ -21,7 +21,7 @@ public class GenreDbStorage {
         return jdbcTemplate.query(sql, genreRowMapper);
     }
 
-    public Genre getGenreById(int genreId) {
+    public Genre findById(int genreId) {
         final String sql = "SELECT * FROM genre WHERE genre_id = ?";
         return jdbcTemplate.query(sql, genreRowMapper, genreId)
                 .stream()

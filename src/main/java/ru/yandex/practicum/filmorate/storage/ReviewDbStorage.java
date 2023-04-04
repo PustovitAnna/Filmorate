@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     @Override
     public List<Review> getAllReviews() {
@@ -61,7 +61,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 return ps;
             }, keyHolder);
             review.setReviewId(keyHolder.getKey().intValue());
-            userStorage.saveFeed(review.getUserId(), EventType.REVIEW, Operation.ADD, review.getReviewId());
+            feedStorage.saveFeed(review.getUserId(), EventType.REVIEW, Operation.ADD, review.getReviewId());
             return review;
         } catch (ValidationException e) {
             throw new ValidationException("Review не прошел валидацию.");
@@ -83,8 +83,8 @@ public class ReviewDbStorage implements ReviewStorage {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Пользватель не найден"));
-        userStorage.saveFeed(userId, EventType.REVIEW, Operation.UPDATE, review.getReviewId());
-        return getReviewById(review.getReviewId());
+        feedStorage.saveFeed(userId, EventType.REVIEW, Operation.UPDATE, review.getReviewId());
+        return findById(review.getReviewId());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Пользватель не найден"));
         jdbcTemplate.update("DELETE FROM reviews WHERE review_id = ?", reviewId);
-        userStorage.saveFeed(userId, EventType.REVIEW, Operation.REMOVE, reviewId);
+        feedStorage.saveFeed(userId, EventType.REVIEW, Operation.REMOVE, reviewId);
     }
 
     private Integer mapperInt(ResultSet rs) throws SQLException {
@@ -105,7 +105,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review getReviewById(int id) {
+    public Review findById(int id) {
         String sql = "SELECT * FROM reviews WHERE review_id = ?";
         List<Review> reviews = jdbcTemplate.query(sql, this::rowReviewToMap, id);
         if (reviews.size() != 0) {

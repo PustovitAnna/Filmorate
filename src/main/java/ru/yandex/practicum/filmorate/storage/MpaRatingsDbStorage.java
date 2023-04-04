@@ -20,9 +20,9 @@ public class MpaRatingsDbStorage {
         return jdbcTemplate.query(sql, mpaRatingsRowMapper);
     }
 
-    public MpaRatings getRatingById(int ratingId) {
+    public MpaRatings findById(int ratingId) {
         System.out.println("in DB MPA ID");
-        final String sql = "SELECT * FROM ratings WHERE rating_id = ?";//
+        final String sql = "SELECT * FROM ratings WHERE rating_id = ?";
         return jdbcTemplate.query(sql, mpaRatingsRowMapper, ratingId)
                 .stream()
                 .findAny()
