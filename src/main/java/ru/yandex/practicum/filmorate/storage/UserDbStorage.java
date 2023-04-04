@@ -108,19 +108,19 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Film> getRecommendation(int id) {
-        String sql1 = "SELECT film_id FROM popular_films " +
+        String filmsId = "SELECT film_id FROM popular_films " +
                 "WHERE user_id = ?";
-        List<Long> usersFilms = new ArrayList<>();
-        jdbcTemplate.query(sql1, (rs, rowNum) -> mapFilmsId(rs, usersFilms), id);
-        String sql2 = "SELECT user_id FROM popular_films " +
+        List<Integer> usersFilms = new ArrayList<>();
+        jdbcTemplate.query(filmsId, (rs, rowNum) -> mapFilmsId(rs, usersFilms), id);
+        String recommendUserId = "SELECT user_id FROM popular_films " +
                 "GROUP BY user_id,film_id " +
                 "HAVING film_id IN (" + usersFilms.stream().map(String::valueOf).collect(Collectors.joining(",")) + ") AND user_id != ? " +
                 "ORDER BY COUNT(film_id) desc " +
                 "LIMIT 1";
-        List<Long> usersId = new ArrayList<>();
-        jdbcTemplate.query(sql2, (rs, rowNum) -> mapUsersId(rs, usersId), id);
+        List<Integer> usersId = new ArrayList<>();
+        jdbcTemplate.query(recommendUserId, (rs, rowNum) -> mapUsersId(rs, usersId), id);
 
-        String sql = "SELECT f.*, mpa.name_rating " +
+        String recommendations = "SELECT f.*, mpa.name_rating " +
                 "FROM films AS f " +
                 "LEFT JOIN ratings AS mpa ON f.rating_id = mpa.rating_id " +
                 "LEFT JOIN popular_films AS likes ON f.film_id = likes.film_id " +
@@ -128,7 +128,7 @@ public class UserDbStorage implements UserStorage {
                 "AND f.film_id NOT IN (" + usersFilms.stream().map(String::valueOf).collect(Collectors.joining(",")) + ") ";
 
         Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
-        List<Film> films = jdbcTemplate.query(sql, filmMapper);
+        List<Film> films = jdbcTemplate.query(recommendations, filmMapper);
         if (films.isEmpty()) {
             return films;
         }
@@ -139,14 +139,13 @@ public class UserDbStorage implements UserStorage {
         return films;
     }
 
-    private List<Long> mapFilmsId(ResultSet resultSet, List<Long> usersFilms) throws SQLException {
-        final Long a = resultSet.getLong("film_id");
-        usersFilms.add(a);
+    private List<Integer> mapFilmsId(ResultSet resultSet, List<Integer> usersFilms) throws SQLException {
+        usersFilms.add(resultSet.getInt("film_id"));
         return usersFilms;
     }
 
-    private List<Long> mapUsersId(ResultSet resultSet, List<Long> usersId) throws SQLException {
-        usersId.add(resultSet.getLong("user_id"));
+    private List<Integer> mapUsersId(ResultSet resultSet, List<Integer> usersId) throws SQLException {
+        usersId.add(resultSet.getInt("user_id"));
         return usersId;
     }
 

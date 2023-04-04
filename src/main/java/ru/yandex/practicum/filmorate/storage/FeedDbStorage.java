@@ -21,14 +21,14 @@ public class FeedDbStorage implements FeedStorage {
     @Override
     public List<Feed> getFeed(Integer id) {
         return jdbcTemplate.query("SELECT * " +
-                "FROM FEED " +
+                "FROM feed " +
                 "WHERE user_id = ? " +
                 "ORDER BY time_stamp", ((rs, rowNum) -> mapperFeed(rs)), id);
     }
 
     private Feed mapperFeed(ResultSet rs) throws SQLException {
         Feed feed = new Feed();
-        feed.setTimestamp(rs.getLong("time_stamp"));
+        feed.setTimestamp(rs.getInt("time_stamp"));
         feed.setUserId(rs.getInt("user_id"));
         feed.setEventType(EventType.valueOf(rs.getString("event_type")));
         feed.setOperation(Operation.valueOf(rs.getString("operation")));
@@ -39,7 +39,7 @@ public class FeedDbStorage implements FeedStorage {
 
     @Override
     public void saveFeed(Integer userId, EventType ev, Operation op, Integer entityId) {
-        jdbcTemplate.update("INSERT INTO FEED (time_stamp, user_id, event_type, operation, entity_id) " +
+        jdbcTemplate.update("INSERT INTO feed (time_stamp, user_id, event_type, operation, entity_id) " +
                 "VALUES (?,?,?,?,?)", System.currentTimeMillis(), userId, String.valueOf(ev), String.valueOf(op), entityId);
     }
 }
