@@ -3,28 +3,22 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.EventType;
 import ru.yandex.practicum.filmorate.util.Operation;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
 public class FilmService {
-    static final LocalDate DATE = LocalDate.of(1895, 12, 28);
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
     private final FeedStorage feedStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage, FeedStorage feedStorage) {
+    public FilmService(FilmStorage filmStorage, FeedStorage feedStorage) {
         this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
         this.feedStorage = feedStorage;
     }
 
@@ -33,12 +27,10 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        validate(film);
         return filmStorage.create(film);
     }
 
     public Film put(Film film) {
-        validate(film);
         return filmStorage.put(film);
     }
 
@@ -65,12 +57,6 @@ public class FilmService {
     void validateId(int filmId, int userId) {
         if (filmId <= 0 || userId <= 0)
             throw new NotFoundException("Некорректный id фильма или пользователя!");
-    }
-
-    public void validate(Film film) {
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(DATE)) {
-            throw new ValidationException("Дата фильма не модет быть " + DATE);
-        }
     }
 
     public void deleteFilm(int filmId) {

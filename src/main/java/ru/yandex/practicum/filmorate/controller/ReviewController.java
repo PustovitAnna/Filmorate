@@ -17,7 +17,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("{id}")
-    public Review getById(@PathVariable("id") int reviewId) {
+    public Review getById(@Valid @PathVariable("id") int reviewId) {
         return reviewService.getReviewById(reviewId);
     }
 
@@ -45,32 +45,32 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable("id") int id, @PathVariable("userId") int userId) {
+    public void addLike(@Valid @PathVariable("id") int id, @Valid @PathVariable("userId") int userId) {
         reviewService.addLike(id, userId);
         log.info("Добавление лайка для отзыва {}, user id {}", id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
-    public void addDislike(@PathVariable("id") int id, @PathVariable("userId") int userId) {
+    public void addDislike(@Valid @PathVariable("id") int id, @Valid @PathVariable("userId") int userId) {
         log.info("Добавление дислайка для отзыва {}, user id {}", id, userId);
         reviewService.addDislike(id, userId);
     }
 
     @DeleteMapping("/{id}")
-    public void del(@PathVariable("id") int id) {
+    public void delete(@Valid @PathVariable("id") int id) {
         log.info("Удаление отзыва {}", id);
-        reviewService.del(id);
+        reviewService.delete(id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void delLike(@PathVariable("id") int id, @PathVariable("userId") int userId) {
+    public void deleteLike(@Valid @PathVariable("id") int id, @Valid @PathVariable("userId") int userId) {
         log.info("Удаление лайка для отзыва {}", id);
-        reviewService.delLike(id, userId);
+        reviewService.deleteLike(id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    public void delDislike(@PathVariable("id") int id, @PathVariable("userId") int userId) {
+    public void deleteDislike(@Valid @PathVariable("id") int id, @Valid @PathVariable("userId") int userId) {
         log.info("Удаление дислайка для отзыва {}", id);
-        reviewService.delDislike(id, userId);
+        reviewService.deleteDislike(id, userId);
     }
 }

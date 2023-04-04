@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.EventType;
@@ -30,19 +29,13 @@ public class UserService {
     }
 
     public User create(User user) {
-        validate(user);
         if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
-            if (user.getEmail().contains(" ") || user.getEmail().isEmpty() || user.getEmail().isBlank()) {
-                throw new ValidationException("Логин не может содержать пробелы!");
-            } else {
-                user.setName(user.getLogin());
-            }
+            user.setName(user.getLogin());
         }
         return userStorage.create(user);
     }
 
     public User put(User user) {
-        validate(user);
         return userStorage.put(user);
     }
 
@@ -71,17 +64,9 @@ public class UserService {
         return userStorage.getListOfMutualFriends(userId, otherUserId);
     }
 
-
     void validateId(int userId, int otherUserId) {
         if (userId <= 0 || otherUserId <= 0 || userId == otherUserId)
             throw new NotFoundException("Некорректный id пользователя!");
-    }
-
-    public void validate(User user) {
-        String nameAndLogin = user.getLogin();
-        if (nameAndLogin.contains(" ") || nameAndLogin.isEmpty() || nameAndLogin.isBlank()) {
-            throw new ValidationException("Логин не может содержать пробелы!");
-        }
     }
 
     public void deleteUser(int userId) {
