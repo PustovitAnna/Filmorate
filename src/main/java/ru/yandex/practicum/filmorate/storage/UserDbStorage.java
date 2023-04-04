@@ -140,8 +140,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private List<Integer> mapFilmsId(ResultSet resultSet, List<Integer> usersFilms) throws SQLException {
-        final Integer a = resultSet.getInt("film_id");
-        usersFilms.add(a);
+        usersFilms.add(resultSet.getInt("film_id"));
         return usersFilms;
     }
 
