@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.EventType;
 import ru.yandex.practicum.filmorate.util.Operation;
@@ -18,13 +16,11 @@ import java.util.*;
 public class UserService {
     private final UserStorage userStorage;
     private final FeedStorage feedStorage;
-    private final FilmStorage filmStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage, FeedStorage feedStorage, FilmStorage filmStorage) {
+    public UserService(UserStorage userStorage, FeedStorage feedStorage) {
         this.userStorage = userStorage;
         this.feedStorage = feedStorage;
-        this.filmStorage = filmStorage;
     }
 
     public Collection<User> findAll() {
@@ -74,10 +70,6 @@ public class UserService {
 
     public void deleteUser(int userId) {
         userStorage.deleteUser(userId);
-    }
-
-    public List<Film> getRecommendation(int id) {
-        return filmStorage.getRecommendation(id);
     }
 
     public List<Feed> getFeed(Integer id) {
