@@ -28,7 +28,7 @@ public class MpaRatingsController {
 
     @GetMapping("/mpa/{id}")
     public MpaRatings getMpaById(@PathVariable int id) {
-        log.info("Получение рейтинга по id", id);
+        log.info("Получение рейтинга по id: {}", id);
         return mpaRatingService.getRatingById(id);
     }
 }

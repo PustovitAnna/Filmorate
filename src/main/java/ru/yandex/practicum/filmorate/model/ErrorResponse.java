@@ -5,7 +5,6 @@ public class ErrorResponse extends RuntimeException {
 
     public ErrorResponse(String error) {
         this.error = error;
-
     }
 
     public String getError() {

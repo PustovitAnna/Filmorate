@@ -137,7 +137,6 @@ public class ReviewDbStorage implements ReviewStorage {
             jdbcTemplate.update(sglRate, reviewId, userId, count);
         }
         updateUseful(count, reviewId);
-
     }
 
     @Override
