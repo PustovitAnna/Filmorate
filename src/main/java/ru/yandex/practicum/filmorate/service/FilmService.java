@@ -73,4 +73,8 @@ public class FilmService {
         }
         return filmStorage.getFilmByDirectorByLikes(directorId, sortBy);
     }
+
+    public List<Film> getRecommendation(int id) {
+        return filmStorage.getRecommendation(id);
+    }
 }
