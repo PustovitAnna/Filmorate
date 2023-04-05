@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
+
 import lombok.*;
+import ru.yandex.practicum.filmorate.annotation.validLogin.ValidLogin;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -18,10 +19,10 @@ public class User {
     int id;
     @Email
     private String email;
-    @NotBlank
+    @ValidLogin
     private String login;
     private String name;
     @Past
     private LocalDate birthday;
-    private Set<Integer> friendsId = new HashSet<>();//del
+    private Set<Integer> friendsId = new HashSet<>();
 }

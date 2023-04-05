@@ -3,18 +3,24 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
+
 import java.util.*;
 
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage){
-      this.userStorage = userStorage;
+    public UserService(UserStorage userStorage, FeedStorage feedStorage) {
+        this.userStorage = userStorage;
+        this.feedStorage = feedStorage;
     }
 
     public Collection<User> findAll() {
@@ -22,38 +28,34 @@ public class UserService {
     }
 
     public User create(User user) {
-        validate(user);
         if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
-            if(user.getEmail().contains(" ") || user.getEmail().isEmpty() || user.getEmail() == null || user.getEmail().isBlank()){
-                throw new ValidationException("Логин не может содержать пробелы!");
-            } else {
-                user.setName(user.getLogin());
-            }
+            user.setName(user.getLogin());
         }
         return userStorage.create(user);
     }
 
     public User put(User user) {
-        validate(user);
         return userStorage.put(user);
     }
 
     public User getUserById(int userId) {
-        return userStorage.getUserById(userId);
+        return userStorage.findById(userId);
     }
 
     public void addFriend(int userId, int friendId) {
         validateId(userId, friendId);
         userStorage.addFriend(userId, friendId);
+        feedStorage.saveFeed(userId, EventType.FRIEND, Operation.ADD, friendId);
     }
 
-    public  void  deleteFriend(int userId, int friendId) {
+    public void deleteFriend(int userId, int friendId) {
         validateId(userId, friendId);
         userStorage.deleteFriend(userId, friendId);
+        feedStorage.saveFeed(userId, EventType.FRIEND, Operation.REMOVE, friendId);
     }
 
     public List<User> getFriendList(int userId) {
-       return userStorage.getFriends(userId);
+        return userStorage.getFriends(userId);
     }
 
     public List<User> getListOfMutualFriends(int userId, int otherUserId) {
@@ -61,16 +63,21 @@ public class UserService {
         return userStorage.getListOfMutualFriends(userId, otherUserId);
     }
 
-
     void validateId(int userId, int otherUserId) {
-        if(userId <=0 || otherUserId <= 0 || userId == otherUserId)
+        if (userId <= 0 || otherUserId <= 0 || userId == otherUserId)
             throw new NotFoundException("Некорректный id пользователя!");
     }
 
-    public void validate(User user) {
-        String nameAndLogin = user.getLogin();
-        if(nameAndLogin.contains(" ") || nameAndLogin.isEmpty() || nameAndLogin == null || nameAndLogin.isBlank()){
-            throw new ValidationException("Логин не может содержать пробелы!");
+    public void deleteUser(int userId) {
+        userStorage.deleteUser(userId);
+    }
+
+    public List<Feed> getFeed(Integer id) {
+        User user = userStorage.findById(id);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с id: " + id + " не найден.");
         }
+        return feedStorage.getFeed(id);
     }
 }
+

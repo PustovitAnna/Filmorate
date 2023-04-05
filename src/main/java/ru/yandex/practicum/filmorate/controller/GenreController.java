@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.service.GenreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 @RestController
@@ -23,7 +24,7 @@ public class GenreController {
 
     @GetMapping("/genres/{id}")
     public Genre getGenreById(@PathVariable int id) {
-        log.info("Получение жанра по id", id);
+        log.info("Получение жанра по id: {}", id);
         return genreService.getGenreById(id);
     }
 }

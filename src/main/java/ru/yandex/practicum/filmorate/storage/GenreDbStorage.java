@@ -21,13 +21,12 @@ public class GenreDbStorage {
         return jdbcTemplate.query(sql, genreRowMapper);
     }
 
-    public Genre getGenreById(int genreId) {
+    public Genre findById(int genreId) {
         final String sql = "SELECT * FROM genre WHERE genre_id = ?";
         return jdbcTemplate.query(sql, genreRowMapper, genreId)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("temp" + genreId));
-
     }
 
     public Set<Genre> getGenreByIdFilm(int id) {
@@ -38,7 +37,7 @@ public class GenreDbStorage {
 
     private final RowMapper<Genre> genreRowMapper = (resultSet, rowNum) -> {
         Genre genre = new Genre();
-        genre.setId(resultSet.getInt("genre_id"));//
+        genre.setId(resultSet.getInt("genre_id"));
         genre.setName(resultSet.getString("name_genre"));
         return genre;
     };

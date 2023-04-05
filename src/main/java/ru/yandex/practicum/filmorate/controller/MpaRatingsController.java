@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,10 +14,12 @@ import java.util.List;
 @Slf4j
 public class MpaRatingsController {
     MpaRatingService mpaRatingService;
+
     @Autowired
-    public MpaRatingsController(MpaRatingService mpaRatingService){
+    public MpaRatingsController(MpaRatingService mpaRatingService) {
         this.mpaRatingService = mpaRatingService;
     }
+
     @GetMapping("/mpa")
     public List<MpaRatings> getAllMpa() {
         log.info("Получение списка всех рейтингов");
@@ -27,7 +28,7 @@ public class MpaRatingsController {
 
     @GetMapping("/mpa/{id}")
     public MpaRatings getMpaById(@PathVariable int id) {
-        log.info("Получение рейтинга по id", id);
+        log.info("Получение рейтинга по id: {}", id);
         return mpaRatingService.getRatingById(id);
     }
 }

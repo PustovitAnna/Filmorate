@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
+
 import java.util.List;
 
 @Service
@@ -16,6 +17,6 @@ public class GenreService {
     }
 
     public Genre getGenreById(int genreId) {
-        return genreDbStorage.getGenreById(genreId);
+        return genreDbStorage.findById(genreId);
     }
 }
