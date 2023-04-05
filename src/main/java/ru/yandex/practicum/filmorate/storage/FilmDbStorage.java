@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -123,7 +122,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) { //Integer
+    public List<Film> getPopularFilms(int count) {
         Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
         String sql = "SELECT f.*, mpa.name_rating\n" +
                 "FROM films AS f, ratings AS mpa\n" +
@@ -324,5 +323,48 @@ public class FilmDbStorage implements FilmStorage {
                         return directors1.size();
                     }
                 });
+    }
+
+    @Override
+    public List<Film> getRecommendation(int id) {
+        String filmsId = "SELECT film_id FROM popular_films " +
+                "WHERE user_id = ?";
+        List<Integer> usersFilms = new ArrayList<>();
+        jdbcTemplate.query(filmsId, (rs, rowNum) -> mapFilmsId(rs, usersFilms), id);
+        String recommendUserId = "SELECT user_id FROM popular_films " +
+                "GROUP BY user_id,film_id " +
+                "HAVING film_id IN (" + usersFilms.stream().map(String::valueOf).collect(Collectors.joining(",")) + ") AND user_id != ? " +
+                "ORDER BY COUNT(film_id) desc " +
+                "LIMIT 1";
+        List<Integer> usersId = new ArrayList<>();
+        jdbcTemplate.query(recommendUserId, (rs, rowNum) -> mapUsersId(rs, usersId), id);
+
+        String recommendations = "SELECT f.*, mpa.name_rating " +
+                "FROM films AS f " +
+                "LEFT JOIN ratings AS mpa ON f.rating_id = mpa.rating_id " +
+                "LEFT JOIN popular_films AS likes ON f.film_id = likes.film_id " +
+                "WHERE likes.user_id IN (" + usersId.stream().map(String::valueOf).collect(Collectors.joining(",")) + ") " +
+                "AND f.film_id NOT IN (" + usersFilms.stream().map(String::valueOf).collect(Collectors.joining(",")) + ") ";
+
+        Map<Integer, Set<Director>> filmsDirectors = new HashMap<>();
+        List<Film> films = jdbcTemplate.query(recommendations, filmMapper);
+        if (films.isEmpty()) {
+            return films;
+        }
+        String sql3 = "SELECT *,df.film_id " +
+                "FROM DIRECTORS d " +
+                "LEFT JOIN DIRECTORS_FILMS df ON d.director_id = df.director_id ";
+        jdbcTemplate.query(sql3, (rs, rowNum) -> assignDirectors(rs, films, filmsDirectors));
+        return films;
+    }
+
+    private List<Integer> mapFilmsId(ResultSet resultSet, List<Integer> usersFilms) throws SQLException {
+        usersFilms.add(resultSet.getInt("film_id"));
+        return usersFilms;
+    }
+
+    private List<Integer> mapUsersId(ResultSet resultSet, List<Integer> usersId) throws SQLException {
+        usersId.add(resultSet.getInt("user_id"));
+        return usersId;
     }
 }

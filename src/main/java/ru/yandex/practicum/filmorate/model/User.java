@@ -24,5 +24,5 @@ public class User {
     private String name;
     @Past
     private LocalDate birthday;
-    private Set<Integer> friendsId = new HashSet<>();//del
+    private Set<Integer> friendsId = new HashSet<>();
 }

@@ -31,43 +31,43 @@ public class UserController {
 
     @PostMapping("/users")
     public User create(@Valid @RequestBody User user) {
-        log.info("Создание пользователя", user);
+        log.info("Создание пользователя: {}", user);
         return userService.create(user);
     }
 
     @PutMapping("/users")
     public User put(@Valid @RequestBody User user) {
-        log.info("Обновление пользователя", user);
+        log.info("Обновление пользователя: {}", user);
         return userService.put(user);
     }
 
     @GetMapping("/users/{id}")
     public User getUserBiYd(@PathVariable int id) {
-        log.info("Получение пользователя по id", id);
+        log.info("Получение пользователя по id: {}", id);
         return userService.getUserById(id);
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
     public void addFriend(@PathVariable int id, @PathVariable int friendId) {
-        log.info("Добавление пользователя в друзья", id);
+        log.info("Добавление пользователя в друзья: {}", id);
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
-        log.info("Удаление пользователя из друзей", friendId, id);
+        log.info("Удаление пользователя из друзей: {}, {}", friendId, id);
         userService.deleteFriend(id, friendId);
     }
 
-    @GetMapping("/users/{id}/friends")                 // получить список друзей (3)
+    @GetMapping("/users/{id}/friends")
     public List<User> getFriendList(@PathVariable int id) {
-        log.info("Получение списка друзей", id);
+        log.info("Получение списка друзей: {}", id);
         return userService.getFriendList(id);
     }
 
-    @GetMapping("/users/{id}/friends/common/{otherId}") // получить список общих друзей (4)
+    @GetMapping("/users/{id}/friends/common/{otherId}")
     public List<User> getListOfMutualFriends(@PathVariable int id, @PathVariable int otherId) {
-        log.info("Получение списка общих друзей", id, otherId);
+        log.info("Получение списка общих друзей : {}, {}", id, otherId);
         return userService.getListOfMutualFriends(id, otherId);
     }
 

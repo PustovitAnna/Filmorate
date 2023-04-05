@@ -28,7 +28,7 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film create(@Valid @RequestBody Film film) {
-        log.info("Создание фильма", film);
+        log.info("Создание фильма: {}", film);
         return filmService.create(film);
     }
 
@@ -67,7 +67,6 @@ public class FilmController {
         filmService.deleteFilm(id);
         log.info("Фильм с идентификатором: " + id + " удален.");
     }
-
 
     @GetMapping("/films/search")
     public List<Film> searchFilms(@RequestParam(value = "query") String query,

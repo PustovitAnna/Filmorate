@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface FilmStorage {
+
     Collection<Film> findAll();
 
     Film create(Film film);
@@ -22,7 +23,7 @@ public interface FilmStorage {
 
     void deleteLike(int filmId, int userId);
 
-    List<Film> getPopularFilms(int count);//Integer
+    List<Film> getPopularFilms(int count);
 
     void deleteFilm(int filmId);
 
@@ -33,4 +34,6 @@ public interface FilmStorage {
     List<Film> getFilmByDirectorByLikes(int directorId, String sortBy);
 
     List<Film> assignDirectors(ResultSet rs, List<Film> films, Map<Integer, Set<Director>> filmsDirectors);
+
+    List<Film> getRecommendation(int id);
 }

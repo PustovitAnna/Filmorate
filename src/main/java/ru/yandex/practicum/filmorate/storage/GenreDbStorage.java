@@ -27,7 +27,6 @@ public class GenreDbStorage {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("temp" + genreId));
-
     }
 
     public Set<Genre> getGenreByIdFilm(int id) {
@@ -38,7 +37,7 @@ public class GenreDbStorage {
 
     private final RowMapper<Genre> genreRowMapper = (resultSet, rowNum) -> {
         Genre genre = new Genre();
-        genre.setId(resultSet.getInt("genre_id"));//
+        genre.setId(resultSet.getInt("genre_id"));
         genre.setName(resultSet.getString("name_genre"));
         return genre;
     };
